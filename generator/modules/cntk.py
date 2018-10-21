@@ -8,7 +8,7 @@ from .opencv import Opencv
 @source('pip')
 class Cntk(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
@@ -27,5 +27,5 @@ class Cntk(Module):
                   ..''',
             r'make -j"$(nproc)" install',
             '',
-            r'$PIP_INSTALL cntk%s' % ('' if self.composer.cuda_ver is None else '-gpu')
+            r'$PIP_INSTALL cntk%s' % ('' if composer.cuda_ver is None else '-gpu')
         ]

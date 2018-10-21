@@ -8,12 +8,12 @@ from .tools import Tools
 @source('apt')
 class Python(Module):
 
-    def __init__(self, manager, **args):
-        super(self.__class__, self).__init__(manager, **args)
+    def __init__(self, **args):
+        super(self.__class__, self).__init__(**args)
         if self.version not in ('2.7', '3.5', '3.6',):
             raise NotImplementedError('unsupported python version')
 
-    def build(self):
+    def build(self, composer):
         if self.version == '3.5':
             stmts = [
                 r'''

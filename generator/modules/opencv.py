@@ -10,7 +10,7 @@ from .python import Python
 @version('3.4.3')
 class Opencv(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \

@@ -8,7 +8,7 @@ from .jupyter import Jupyter
 @source('pip')
 class Jupyterlab(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'$PIP_INSTALL jupyterlab'
         ]

@@ -7,7 +7,7 @@ from .python import Python
 @source('pip')
 class Jupyter(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'$PIP_INSTALL jupyter'
         ]

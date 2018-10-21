@@ -7,8 +7,8 @@ from .tools import Tools
 @source('git')
 class Darknet(Module):
 
-    def build(self):
-        use_gpu = 1 if self.composer.cuda_ver else 0
+    def build(self, composer):
+        use_gpu = 1 if composer.cuda_ver else 0
 
         return [
             r'$GIT_CLONE https://github.com/pjreddie/darknet.git ~/darknet',

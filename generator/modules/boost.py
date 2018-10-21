@@ -11,8 +11,8 @@ class Boost(Module):
     def __repr__(self):
         return ''
 
-    def build(self):
-        pyver = self.composer.ver(Python)
+    def build(self, composer):
+        pyver = composer.ver(Python)
         if pyver == '2.7':
             return [
                 r'''

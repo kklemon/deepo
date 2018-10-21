@@ -7,12 +7,12 @@ from .python import Python
 @source('pip')
 class Chainer(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'''
             $PIP_INSTALL \
             '''.rstrip() + (
-                '' if self.composer.cuda_ver is None else
+                '' if composer.cuda_ver is None else
                 r'''
                 cupy \
                 '''.rstrip()

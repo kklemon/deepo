@@ -9,7 +9,7 @@ from .theano import Theano
 @source('git')
 class Lasagne(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'$GIT_CLONE https://github.com/Lasagne/Lasagne ~/lasagne',
             r'cd ~/lasagne',

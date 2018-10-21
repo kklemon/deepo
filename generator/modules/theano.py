@@ -8,7 +8,7 @@ from .python import Python
 @source('git')
 class Theano(Module):
 
-    def build(self):
+    def build(self, composer):
         stmts = [
             r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
@@ -16,7 +16,7 @@ class Theano(Module):
             '''
         ]
 
-        if self.composer.cuda_ver:
+        if composer.cuda_ver:
             stmts += [
                 'wget -qO- https://github.com/Theano/libgpuarray/archive/v0.7.6.tar.gz | tar xz -C ~',
                 'cd ~/libgpuarray* && mkdir -p build && cd build',

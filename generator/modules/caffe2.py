@@ -9,9 +9,9 @@ from .opencv import Opencv
 @source('git')
 class Caffe2(Module):
 
-    def build(self):
-        switcher = 'OFF' if self.composer.cuda_ver is None else 'ON'
-        pyver = self.composer.ver(Python)
+    def build(self, composer):
+        switcher = 'OFF' if composer.cuda_ver is None else 'ON'
+        pyver = composer.ver(Python)
         if pyver == '3.5':
             platform = 'cp35-cp35'
         elif pyver == '3.6':
@@ -19,10 +19,10 @@ class Caffe2(Module):
         else:
             platform = 'cp27-cp27mu'
 
-        if self.composer.cuda_ver is None:
+        if composer.cuda_ver is None:
             cuver = 'cpu'
         else:
-            cuver = 'cu%d' % (float(self.composer.cuda_ver) * 10)
+            cuver = 'cu%d' % (float(composer.cuda_ver) * 10)
 
         stmts = [
             r'''

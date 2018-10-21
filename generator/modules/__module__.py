@@ -31,9 +31,9 @@ def version(module, _ver):
 @source('unknown')
 @version('latest')
 class Module(object):
-
-    def __init__(self, composer):
-        self.composer = composer
+    def __init__(self, version=None):
+        if version is not None:
+            self.version = version
 
     def __repr__(self):
         return '%-13s %-6s (%s)' % (
@@ -41,7 +41,7 @@ class Module(object):
             self.version,
             self.source)
 
-    def build(self):
+    def build(self, composer):
         pass
 
     def expose(self):

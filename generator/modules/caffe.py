@@ -10,9 +10,9 @@ from .opencv import Opencv
 @source('git')
 class Caffe(Module):
 
-    def build(self):
-        pyver = self.composer.ver(Python)
-        cpu_only = self.composer.cuda_ver is None
+    def build(self, composer):
+        pyver = composer.ver(Python)
+        cpu_only = composer.cuda_ver is None
 
         stmts = [
             r'$GIT_CLONE https://github.com/BVLC/caffe ~/caffe',

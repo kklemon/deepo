@@ -8,7 +8,7 @@ class Tools(Module):
     def __repr__(self):
         return ''
 
-    def build(self):
+    def build(self, composer):
         return [r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
                 build-essential \

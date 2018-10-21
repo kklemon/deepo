@@ -7,11 +7,11 @@ from .python import Python
 @source('pip')
 class Mxnet(Module):
 
-    def build(self):
-        if self.composer.cuda_ver is None:
+    def build(self, composer):
+        if composer.cuda_ver is None:
             cuver = ''
         else:
-            cuver = '-cu%d' % (float(self.composer.cuda_ver) * 10)
+            cuver = '-cu%d' % (float(composer.cuda_ver) * 10)
 
         return [
             r'''

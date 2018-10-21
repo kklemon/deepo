@@ -7,7 +7,7 @@ from .python import Python
 @source('pip')
 class Onnx(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \

@@ -7,7 +7,7 @@ from .tools import Tools
 @source('git')
 class Torch(Module):
 
-    def build(self):
+    def build(self, composer):
         stmts = [
             r'export TORCH_NVCC_FLAGS="-D__CUDA_NO_HALF_OPERATORS__"',
             r'$GIT_CLONE https://github.com/torch/distro.git ~/torch'
@@ -43,7 +43,7 @@ class Torch(Module):
             ''',
         ]
 
-        if self.composer.cuda_ver is None:
+        if composer.cuda_ver is None:
             stmts += [r'''sed -i 's/\[ -x "$path_to_nvcc" \]/false/' install.sh''']
 
         return stmts + [

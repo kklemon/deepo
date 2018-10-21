@@ -8,7 +8,7 @@ from .tensorflow import Tensorflow
 @source('pip')
 class Sonnet(Module):
 
-    def build(self):
+    def build(self, composer):
         return [
             r'$PIP_INSTALL dm-sonnet'
         ]

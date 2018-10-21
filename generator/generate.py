@@ -3,6 +3,7 @@
 """Console script for generator."""
 import argparse
 from core.composer import Composer
+from modules.packagemanager import PackageManager
 
 
 def _import(name):
@@ -26,14 +27,21 @@ def main():
     args = parser.parse_args()
 
     in_modules = []
-    versions = {}
     for module in args.modules:
         terms = module.split('==')
-        m = _import(terms[0])
-        in_modules.append(m)
+        version = terms[1] if len(terms) > 1 else None
+        terms = terms[0].split('+')
         if len(terms) > 1:
-            versions[m] = terms[1]
-    composer = Composer(in_modules, args.cuda_ver, args.cudnn_ver, versions)
+            pm_shortcut, module = terms
+            PackageManager.register_package(pm_shortcut, module, version)
+        else:
+            module = _import(terms[0])
+            instance = module(version)
+            in_modules.append(instance)
+
+    in_modules += PackageManager.get_package_managers()
+
+    composer = Composer(in_modules, args.cuda_ver, args.cudnn_ver)
     with open(args.path, 'w') as f:
         f.write(composer.to_dockerfile(join_mode=args.join_mode))
 
