@@ -11,7 +11,8 @@ from .python import Python
 class Opencv(Module):
 
     def build(self):
-        return r'''
+        return [
+            r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
                 libatlas-base-dev \
                 libgflags-dev \
@@ -21,11 +22,14 @@ class Opencv(Module):
                 liblmdb-dev \
                 libprotobuf-dev \
                 libsnappy-dev \
-                protobuf-compiler \
-                && \
-
-            $GIT_CLONE --branch %s https://github.com/opencv/opencv ~/opencv && \
-            mkdir -p ~/opencv/build && cd ~/opencv/build && \
+                protobuf-compiler''',
+            '',
+            r'$GIT_CLONE --branch %s https://github.com/opencv/opencv ~/opencv'
+            % self.version,
+            r'mkdir -p ~/opencv/build',
+            r'cd ~/opencv/build',
+            '',
+            r'''
             cmake -D CMAKE_BUILD_TYPE=RELEASE \
                   -D CMAKE_INSTALL_PREFIX=/usr/local \
                   -D WITH_IPP=OFF \
@@ -33,6 +37,7 @@ class Opencv(Module):
                   -D WITH_OPENCL=OFF \
                   -D BUILD_TESTS=OFF \
                   -D BUILD_PERF_TESTS=OFF \
-                  .. && \
-            make -j"$(nproc)" install && \
-        ''' % self.version
+                  ..''',
+            r'make -j"$(nproc)" install'
+        ]
+

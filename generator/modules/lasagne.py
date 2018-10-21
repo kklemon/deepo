@@ -10,9 +10,8 @@ from .theano import Theano
 class Lasagne(Module):
 
     def build(self):
-        return r'''
-            $GIT_CLONE https://github.com/Lasagne/Lasagne ~/lasagne && \
-            cd ~/lasagne && \
-            $PIP_INSTALL \
-                . && \
-        '''
+        return [
+            r'$GIT_CLONE https://github.com/Lasagne/Lasagne ~/lasagne',
+            r'cd ~/lasagne',
+            r'$PIP_INSTALL .'
+        ]

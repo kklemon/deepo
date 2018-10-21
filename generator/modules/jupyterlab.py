@@ -9,8 +9,6 @@ from .jupyter import Jupyter
 class Jupyterlab(Module):
 
     def build(self):
-        return r'''
-            $PIP_INSTALL \
-                jupyterlab \
-                && \
-        '''
+        return [
+            r'$PIP_INSTALL jupyterlab'
+        ]

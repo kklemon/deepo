@@ -13,11 +13,7 @@ class Tensorflow(Module):
             tf_version = '1.4'
         tf_version = '' if 'latest' == tf_version else '==' + tf_version
         is_gpu = '' if self.composer.cuda_ver is None else '-gpu'
-        return r'''
-            $PIP_INSTALL \
-                tensorflow%s%s \
-                && \
-        ''' % (is_gpu, tf_version)
+        return ['$PIP_INSTALL tensorflow%s%s' % (is_gpu, tf_version)]
 
     def expose(self):
         return [

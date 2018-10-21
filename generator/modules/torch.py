@@ -8,41 +8,45 @@ from .tools import Tools
 class Torch(Module):
 
     def build(self):
-        return r'''
-            export TORCH_NVCC_FLAGS="-D__CUDA_NO_HALF_OPERATORS__" && \
-            $GIT_CLONE https://github.com/torch/distro.git ~/torch''' \
-        + r''' --recursive && \
-
-            cd ~/torch/exe/luajit-rocks && \
-            mkdir build && cd build && \
+        stmts = [
+            r'export TORCH_NVCC_FLAGS="-D__CUDA_NO_HALF_OPERATORS__"',
+            r'$GIT_CLONE https://github.com/torch/distro.git ~/torch'
+            r' --recursive',
+            r'cd ~/torch/exe/luajit-rocks',
+            r'mkdir build && cd build',
+            r'''
             cmake -D CMAKE_BUILD_TYPE=RELEASE \
                   -D CMAKE_INSTALL_PREFIX=/usr/local \
                   -D WITH_LUAJIT21=ON \
-                  .. && \
-            make -j"$(nproc)" install && \
-
+                  ..
+            ''',
+            r'make -j"$(nproc)" install'
+            '',
+            r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
                 libjpeg-dev \
                 libpng-dev \
-                libreadline-dev \
-                && \
-
-            $GIT_CLONE https://github.com/Yonaba/Moses ~/moses && \
-            cd ~/moses && \
-            luarocks install rockspec/moses-1.6.1-1.rockspec && \
-
-            cd ~/torch && \
-            sed -i 's/extra\/cudnn/extra\/cudnn ''' \
-        + r'''\&\& git checkout R7/' install.sh && \
+                libreadline-dev''',
+            r'$GIT_CLONE https://github.com/Yonaba/Moses ~/moses',
+            r'cd ~/moses',
+            r'luarocks install rockspec/moses-1.6.1-1.rockspec',
+            '',
+            r'cd ~/torch',
+            r"sed - i 's/extra\/cudnn/extra\/cudnn \&\& git checkout R7/' install.sh",
+            r'''
             sed -i 's/$PREFIX\/bin\/luarocks/luarocks/' install.sh && \
             sed -i '/qt/d' install.sh && \
             sed -i '/Installing Lua/,/^cd \.\.$/d' install.sh && \
             sed -i '/path_to_nvidiasmi/,/^fi$/d' install.sh && \
             sed -i '/Restore anaconda/,/^Not updating$/d' install.sh && \
-            sed -i '/You might want to/,/^fi$/d' install.sh && \
-            '''.rstrip() + (r'''
-            sed -i 's/\[ -x "$path_to_nvcc" \]/false/' install.sh && \
-            '''.rstrip() if self.composer.cuda_ver is None else ''
-        ) + r'''
-            yes no | ./install.sh && \
-        '''
+            sed -i '/You might want to/,/^fi$/d' install.sh
+            ''',
+        ]
+
+        if self.composer.cuda_ver is None:
+            stmts += [r'''sed -i 's/\[ -x "$path_to_nvcc" \]/false/' install.sh''']
+
+        return stmts + [
+            '',
+            'yes no | ./install.sh'
+        ]

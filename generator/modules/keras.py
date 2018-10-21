@@ -9,9 +9,11 @@ from .tensorflow import Tensorflow
 class Keras(Module):
 
     def build(self):
-        return r'''
-            $PIP_INSTALL \
-                h5py \
-                keras \
-                && \
-        '''
+        return [
+            r'''
+            $PIP_INSTALL
+                h5py
+                keras
+            '''
+        ]
+

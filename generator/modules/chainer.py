@@ -8,14 +8,15 @@ from .python import Python
 class Chainer(Module):
 
     def build(self):
-        return r'''
+        return [
+            r'''
             $PIP_INSTALL \
             '''.rstrip() + (
-                '' if self.composer.cuda_ver is None else \
+                '' if self.composer.cuda_ver is None else
                 r'''
                 cupy \
                 '''.rstrip()
             ) + r'''
-                chainer \
-                && \
-        '''
+                chainer'''
+        ]
+

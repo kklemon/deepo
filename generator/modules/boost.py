@@ -13,18 +13,19 @@ class Boost(Module):
 
     def build(self):
         pyver = self.composer.ver(Python)
-        return r'''
-            DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-                libboost-all-dev \
-                && \
-            ''' if pyver == '2.7' else (
-            r'''
-            wget -O ~/boost.tar.gz '''
-            + r'''https://dl.bintray.com/boostorg/release/1.65.1'''
-            + r'''/source/boost_1_65_1.tar.gz && \
-            tar -zxf ~/boost.tar.gz -C ~ && \
-            cd ~/boost_* && \
-            ./bootstrap.sh --with-python=python%s && \
-            ./b2 install --prefix=/usr/local && \
-            ''' % pyver
-        )
+        if pyver == '2.7':
+            return [
+                r'''
+                DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+                    libboost-all-dev
+                '''
+            ]
+        return [
+            r'wget -O ~/boost.tar.gz '
+            r'https://dl.bintray.com/boostorg/release/1.65.1'
+            r'/source/boost_1_65_1.tar.gz',
+            r'tar -zxf ~/boost.tar.gz -C ~',
+            r'cd ~/boost_*',
+            r'./bootstrap.sh --with-python=python%s' % pyver,
+            r'./b2 install --prefix=/usr/local'
+        ]

@@ -5,69 +5,66 @@
 # ==================================================================
 
 FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
-    GIT_CLONE="git clone --depth 10" && \
+RUN APT_INSTALL="apt-get install -y --no-install-recommends"
+RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade"
+RUN GIT_CLONE="git clone --depth 10"
 
-    rm -rf /var/lib/apt/lists/* \
-           /etc/apt/sources.list.d/cuda.list \
-           /etc/apt/sources.list.d/nvidia-ml.list && \
+RUN rm -rf /var/lib/apt/lists/* \
+        /etc/apt/sources.list.d/cuda.list \
+        /etc/apt/sources.list.d/nvidia-ml.list
 
-    apt-get update && \
+RUN apt-get update
 
 # ==================================================================
 # tools
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
         cmake \
         wget \
         git \
-        vim \
-        && \
+        vim
 
 # ==================================================================
 # torch
-# ------------------------------------------------------------------
+# ==================================================================
 
-    export TORCH_NVCC_FLAGS="-D__CUDA_NO_HALF_OPERATORS__" && \
-    $GIT_CLONE https://github.com/torch/distro.git ~/torch --recursive && \
-
-    cd ~/torch/exe/luajit-rocks && \
-    mkdir build && cd build && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+RUN export TORCH_NVCC_FLAGS="-D__CUDA_NO_HALF_OPERATORS__"
+RUN $GIT_CLONE https://github.com/torch/distro.git ~/torch --recursive
+RUN cd ~/torch/exe/luajit-rocks
+RUN mkdir build && cd build
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
           -D WITH_LUAJIT21=ON \
-          .. && \
-    make -j"$(nproc)" install && \
-
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+          ..
+RUN make -j"$(nproc)" install
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         libjpeg-dev \
         libpng-dev \
-        libreadline-dev \
-        && \
+        libreadline-dev
+RUN $GIT_CLONE https://github.com/Yonaba/Moses ~/moses
+RUN cd ~/moses
+RUN luarocks install rockspec/moses-1.6.1-1.rockspec
 
-    $GIT_CLONE https://github.com/Yonaba/Moses ~/moses && \
-    cd ~/moses && \
-    luarocks install rockspec/moses-1.6.1-1.rockspec && \
-
-    cd ~/torch && \
-    sed -i 's/extra\/cudnn/extra\/cudnn \&\& git checkout R7/' install.sh && \
-    sed -i 's/$PREFIX\/bin\/luarocks/luarocks/' install.sh && \
+RUN cd ~/torch
+RUN sed - i 's/extra\/cudnn/extra\/cudnn \&\& git checkout R7/' install.sh
+RUN sed -i 's/$PREFIX\/bin\/luarocks/luarocks/' install.sh && \
     sed -i '/qt/d' install.sh && \
     sed -i '/Installing Lua/,/^cd \.\.$/d' install.sh && \
     sed -i '/path_to_nvidiasmi/,/^fi$/d' install.sh && \
     sed -i '/Restore anaconda/,/^Not updating$/d' install.sh && \
-    sed -i '/You might want to/,/^fi$/d' install.sh && \
-    yes no | ./install.sh && \
+    sed -i '/You might want to/,/^fi$/d' install.sh
+
+RUN yes no | ./install.sh
 
 # ==================================================================
 # config & cleanup
-# ------------------------------------------------------------------
+# ==================================================================
 
-    ldconfig && \
-    apt-get clean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+RUN ldconfig
+RUN apt-get clean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+

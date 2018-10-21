@@ -6,89 +6,80 @@
 # ==================================================================
 
 FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
-    GIT_CLONE="git clone --depth 10" && \
+RUN APT_INSTALL="apt-get install -y --no-install-recommends"
+RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade"
+RUN GIT_CLONE="git clone --depth 10"
 
-    rm -rf /var/lib/apt/lists/* \
-           /etc/apt/sources.list.d/cuda.list \
-           /etc/apt/sources.list.d/nvidia-ml.list && \
+RUN rm -rf /var/lib/apt/lists/* \
+        /etc/apt/sources.list.d/cuda.list \
+        /etc/apt/sources.list.d/nvidia-ml.list
 
-    apt-get update && \
+RUN apt-get update
 
 # ==================================================================
 # tools
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
         cmake \
         wget \
         git \
-        vim \
-        && \
+        vim
 
 # ==================================================================
 # python
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-        software-properties-common \
-        && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+        software-properties-common
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python3.6 \
-        python3.6-dev \
-        && \
-    wget -O ~/get-pip.py \
-        https://bootstrap.pypa.io/get-pip.py && \
-    python3.6 ~/get-pip.py && \
-    ln -s /usr/bin/python3.6 /usr/local/bin/python3 && \
-    ln -s /usr/bin/python3.6 /usr/local/bin/python && \
-    $PIP_INSTALL \
-        setuptools \
-        && \
-    $PIP_INSTALL \
+        python3.6-dev
+RUN wget -O ~/get-pip.py \
+        https://bootstrap.pypa.io/get-pip.py
+RUN python3.6 ~/get-pip.py
+RUN ln -s /usr/bin/python3.6 /usr/local/bin/python3
+RUN ln -s /usr/bin/python3.6 /usr/local/bin/python
+RUN $PIP_INSTALL setuptools
+RUN $PIP_INSTALL \
         numpy \
         scipy \
         pandas \
         cloudpickle \
         scikit-learn \
         matplotlib \
-        Cython \
-        && \
+        Cython
 
 # ==================================================================
 # theano
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-        libblas-dev \
-        && \
-
-    wget -qO- https://github.com/Theano/libgpuarray/archive/v0.7.6.tar.gz | tar xz -C ~ && \
-    cd ~/libgpuarray* && mkdir -p build && cd build && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+        libblas-dev
+RUN wget -qO- https://github.com/Theano/libgpuarray/archive/v0.7.6.tar.gz | tar xz -C ~
+RUN cd ~/libgpuarray* && mkdir -p build && cd build
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
-          .. && \
-    make -j"$(nproc)" install && \
-    cd ~/libgpuarray* && \
-    python setup.py build && \
-    python setup.py install && \
+          ..
+RUN make -j"$(nproc)" install
+RUN cd ~/libgpuarray*
+RUN python setup.py build
+RUN python setup.py install
+RUN printf '[global]\nfloatX = float32\ndevice = cuda0\n\n[dnn]\ninclude_path = /usr/local/cuda/targets/x86_64-linux/include\n' > ~/.theanorc
 
-    printf '[global]\nfloatX = float32\ndevice = cuda0\n\n[dnn]\ninclude_path = /usr/local/cuda/targets/x86_64-linux/include\n' > ~/.theanorc && \
-
-    $PIP_INSTALL \
-        https://github.com/Theano/Theano/archive/master.zip \
-        && \
+RUN $PIP_INSTALL
+        https://github.com/Theano/Theano/archive/master.zip
 
 # ==================================================================
 # config & cleanup
-# ------------------------------------------------------------------
+# ==================================================================
 
-    ldconfig && \
-    apt-get clean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+RUN ldconfig
+RUN apt-get clean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+

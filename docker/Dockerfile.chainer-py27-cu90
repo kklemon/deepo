@@ -6,65 +6,61 @@
 # ==================================================================
 
 FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
-    GIT_CLONE="git clone --depth 10" && \
+RUN APT_INSTALL="apt-get install -y --no-install-recommends"
+RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade"
+RUN GIT_CLONE="git clone --depth 10"
 
-    rm -rf /var/lib/apt/lists/* \
-           /etc/apt/sources.list.d/cuda.list \
-           /etc/apt/sources.list.d/nvidia-ml.list && \
+RUN rm -rf /var/lib/apt/lists/* \
+        /etc/apt/sources.list.d/cuda.list \
+        /etc/apt/sources.list.d/nvidia-ml.list
 
-    apt-get update && \
+RUN apt-get update
 
 # ==================================================================
 # tools
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
         cmake \
         wget \
         git \
-        vim \
-        && \
+        vim
 
 # ==================================================================
 # python
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python-pip \
-        python-dev \
-        && \
-    $PIP_INSTALL \
-        setuptools \
-        pip \
-        && \
-    $PIP_INSTALL \
+        python-dev
+RUN $PIP_INSTALL \
+        setuptools
+        pip
+RUN $PIP_INSTALL \
         numpy \
         scipy \
         pandas \
         cloudpickle \
         scikit-learn \
         matplotlib \
-        Cython \
-        && \
+        Cython
 
 # ==================================================================
 # chainer
-# ------------------------------------------------------------------
+# ==================================================================
 
-    $PIP_INSTALL \
+RUN $PIP_INSTALL \
         cupy \
-        chainer \
-        && \
+        chainer
 
 # ==================================================================
 # config & cleanup
-# ------------------------------------------------------------------
+# ==================================================================
 
-    ldconfig && \
-    apt-get clean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+RUN ldconfig
+RUN apt-get clean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+

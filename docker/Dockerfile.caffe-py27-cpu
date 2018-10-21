@@ -7,64 +7,59 @@
 # ==================================================================
 
 FROM ubuntu:16.04
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
-    GIT_CLONE="git clone --depth 10" && \
+RUN APT_INSTALL="apt-get install -y --no-install-recommends"
+RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade"
+RUN GIT_CLONE="git clone --depth 10"
 
-    rm -rf /var/lib/apt/lists/* \
-           /etc/apt/sources.list.d/cuda.list \
-           /etc/apt/sources.list.d/nvidia-ml.list && \
+RUN rm -rf /var/lib/apt/lists/* \
+        /etc/apt/sources.list.d/cuda.list \
+        /etc/apt/sources.list.d/nvidia-ml.list
 
-    apt-get update && \
+RUN apt-get update
 
 # ==================================================================
 # tools
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
         cmake \
         wget \
         git \
-        vim \
-        && \
+        vim
 
 # ==================================================================
 # python
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python-pip \
-        python-dev \
-        && \
-    $PIP_INSTALL \
-        setuptools \
-        pip \
-        && \
-    $PIP_INSTALL \
+        python-dev
+RUN $PIP_INSTALL \
+        setuptools
+        pip
+RUN $PIP_INSTALL \
         numpy \
         scipy \
         pandas \
         cloudpickle \
         scikit-learn \
         matplotlib \
-        Cython \
-        && \
+        Cython
 
 # ==================================================================
 # boost
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-        libboost-all-dev \
-        && \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+        libboost-all-dev
 
 # ==================================================================
 # opencv
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         libatlas-base-dev \
         libgflags-dev \
         libgoogle-glog-dev \
@@ -73,53 +68,55 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         liblmdb-dev \
         libprotobuf-dev \
         libsnappy-dev \
-        protobuf-compiler \
-        && \
+        protobuf-compiler
 
-    $GIT_CLONE --branch 3.4.3 https://github.com/opencv/opencv ~/opencv && \
-    mkdir -p ~/opencv/build && cd ~/opencv/build && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+RUN $GIT_CLONE --branch 3.4.3 https://github.com/opencv/opencv ~/opencv
+RUN mkdir -p ~/opencv/build
+RUN cd ~/opencv/build
+
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
           -D WITH_IPP=OFF \
           -D WITH_CUDA=OFF \
           -D WITH_OPENCL=OFF \
           -D BUILD_TESTS=OFF \
           -D BUILD_PERF_TESTS=OFF \
-          .. && \
-    make -j"$(nproc)" install && \
+          ..
+RUN make -j"$(nproc)" install
 
 # ==================================================================
 # caffe
-# ------------------------------------------------------------------
+# ==================================================================
 
-    $GIT_CLONE https://github.com/BVLC/caffe ~/caffe && \
-    cp ~/caffe/Makefile.config.example ~/caffe/Makefile.config && \
-    sed -i 's/# CPU_ONLY/CPU_ONLY/g' ~/caffe/Makefile.config && \
-    sed -i 's/# WITH_PYTHON_LAYER/WITH_PYTHON_LAYER/g' ~/caffe/Makefile.config && \
-    sed -i 's/# OPENCV_VERSION/OPENCV_VERSION/g' ~/caffe/Makefile.config && \
-    sed -i 's/\/usr\/lib\/python/\/usr\/local\/lib\/python/g' ~/caffe/Makefile.config && \
-    sed -i 's/\/usr\/local\/include/\/usr\/local\/include \/usr\/include\/hdf5\/serial/g' ~/caffe/Makefile.config && \
-    sed -i 's/hdf5/hdf5_serial/g' ~/caffe/Makefile && \
-    cd ~/caffe && \
-    make -j"$(nproc)" -Wno-deprecated-gpu-targets distribute && \
+RUN $GIT_CLONE https://github.com/BVLC/caffe ~/caffe
+RUN cp ~/caffe/Makefile.config.example ~/caffe/Makefile.config
+RUN sed -i 's/# CPU_ONLY/CPU_ONLY/g' ~/caffe/Makefile.config
+RUN sed -i 's/# WITH_PYTHON_LAYER/WITH_PYTHON_LAYER/g' ~/caffe/Makefile.config
+RUN sed -i 's/# OPENCV_VERSION/OPENCV_VERSION/g' ~/caffe/Makefile.config
+RUN sed -i 's/\/usr\/lib\/python/\/usr\/local\/lib\/python/g' ~/caffe/Makefile.config
+RUN sed -i 's/\/usr\/local\/include/\/usr\/local\/include \/usr\/include\/hdf5\/serial/g' ~/caffe/Makefile.config
+RUN sed -i 's/hdf5/hdf5_serial/g' ~/caffe/Makefile
+RUN cd ~/caffe
+RUN make -j"$(nproc)" -Wno-deprecated-gpu-targets distribute
 
-    # fix ValueError caused by python-dateutil 1.x
-    sed -i 's/,<2//g' ~/caffe/python/requirements.txt && \
+RUN # fix ValueError caused by python-dateutil 1.x
+    sed -i 's/,<2//g' ~/caffe/python/requirements.txt
 
-    $PIP_INSTALL \
-        -r ~/caffe/python/requirements.txt && \
+RUN $PIP_INSTALL -r ~/caffe/python/requirements.txt
 
-    cd ~/caffe/distribute/bin && \
-    for file in *.bin; do mv "$file" "${file%%.bin}"; done && \
-    cd ~/caffe/distribute && \
-    cp -r bin include lib proto /usr/local/ && \
-    cp -r python/caffe /usr/local/lib/python2.7/dist-packages/ && \
+RUN cd ~/caffe/distribute/bin
+RUN for file in *.bin; do mv "$file" "${file%%%%.bin}"; done
+
+RUN cd ~/caffe/distribute
+RUN cp -r bin include lib proto /usr/local/
+RUN cp -r python/caffe /usr/local/lib/python2.7/dist-packages/
 
 # ==================================================================
 # config & cleanup
-# ------------------------------------------------------------------
+# ==================================================================
 
-    ldconfig && \
-    apt-get clean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+RUN ldconfig
+RUN apt-get clean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+

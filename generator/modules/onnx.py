@@ -8,13 +8,12 @@ from .python import Python
 class Onnx(Module):
 
     def build(self):
-        return r'''
+        return [
+            r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
                 protobuf-compiler \
-                libprotoc-dev \
-                && \
-
-            $PIP_INSTALL \
-                onnx \
-                && \
-        '''
+                libprotoc-dev
+            ''',
+            '',
+            r'$PIP_INSTALL onnx'
+        ]

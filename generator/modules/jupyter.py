@@ -8,11 +8,9 @@ from .python import Python
 class Jupyter(Module):
 
     def build(self):
-        return r'''
-            $PIP_INSTALL \
-                jupyter \
-                && \
-        '''
+        return [
+            r'$PIP_INSTALL jupyter'
+        ]
 
     def expose(self):
         return [

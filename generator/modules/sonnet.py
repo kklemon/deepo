@@ -9,8 +9,6 @@ from .tensorflow import Tensorflow
 class Sonnet(Module):
 
     def build(self):
-        return r'''
-            $PIP_INSTALL \
-                dm-sonnet \
-                && \
-        '''
+        return [
+            r'$PIP_INSTALL dm-sonnet'
+        ]

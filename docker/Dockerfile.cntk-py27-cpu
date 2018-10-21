@@ -7,64 +7,59 @@
 # ==================================================================
 
 FROM ubuntu:16.04
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
-    GIT_CLONE="git clone --depth 10" && \
+RUN APT_INSTALL="apt-get install -y --no-install-recommends"
+RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade"
+RUN GIT_CLONE="git clone --depth 10"
 
-    rm -rf /var/lib/apt/lists/* \
-           /etc/apt/sources.list.d/cuda.list \
-           /etc/apt/sources.list.d/nvidia-ml.list && \
+RUN rm -rf /var/lib/apt/lists/* \
+        /etc/apt/sources.list.d/cuda.list \
+        /etc/apt/sources.list.d/nvidia-ml.list
 
-    apt-get update && \
+RUN apt-get update
 
 # ==================================================================
 # tools
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
         cmake \
         wget \
         git \
-        vim \
-        && \
+        vim
 
 # ==================================================================
 # python
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python-pip \
-        python-dev \
-        && \
-    $PIP_INSTALL \
-        setuptools \
-        pip \
-        && \
-    $PIP_INSTALL \
+        python-dev
+RUN $PIP_INSTALL \
+        setuptools
+        pip
+RUN $PIP_INSTALL \
         numpy \
         scipy \
         pandas \
         cloudpickle \
         scikit-learn \
         matplotlib \
-        Cython \
-        && \
+        Cython
 
 # ==================================================================
 # boost
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-        libboost-all-dev \
-        && \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+        libboost-all-dev
 
 # ==================================================================
 # opencv
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         libatlas-base-dev \
         libgflags-dev \
         libgoogle-glog-dev \
@@ -73,52 +68,49 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         liblmdb-dev \
         libprotobuf-dev \
         libsnappy-dev \
-        protobuf-compiler \
-        && \
+        protobuf-compiler
 
-    $GIT_CLONE --branch 3.4.3 https://github.com/opencv/opencv ~/opencv && \
-    mkdir -p ~/opencv/build && cd ~/opencv/build && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+RUN $GIT_CLONE --branch 3.4.3 https://github.com/opencv/opencv ~/opencv
+RUN mkdir -p ~/opencv/build
+RUN cd ~/opencv/build
+
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
           -D WITH_IPP=OFF \
           -D WITH_CUDA=OFF \
           -D WITH_OPENCL=OFF \
           -D BUILD_TESTS=OFF \
           -D BUILD_PERF_TESTS=OFF \
-          .. && \
-    make -j"$(nproc)" install && \
+          ..
+RUN make -j"$(nproc)" install
 
 # ==================================================================
 # cntk
-# ------------------------------------------------------------------
+# ==================================================================
 
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+RUN DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         openmpi-bin \
         libpng-dev \
         libtiff-dev \
-        libjasper-dev \
-        && \
-
-    wget --no-verbose -O - https://github.com/01org/mkl-dnn/releases/download/v0.14/mklml_lnx_2018.0.3.20180406.tgz | tar -xzf - && \
-    cp mklml*/* /usr/local -r && \
-
-    wget --no-verbose -O - https://github.com/01org/mkl-dnn/archive/v0.14.tar.gz | tar -xzf - && \
-    cd mkl-dnn-0.14 && mkdir build && cd build && \
-    ln -s /usr/local external && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE \
+        libjasper-dev
+RUN wget --no-verbose -O - https://github.com/01org/mkl-dnn/releases/download/v0.14/mklml_lnx_2018.0.3.20180406.tgz | tar -xzf -
+RUN cp mklml*/* /usr/local -r
+RUN wget --no-verbose -O - https://github.com/01org/mkl-dnn/archive/v0.14.tar.gz | tar -xzf -
+RUN cd mkl-dnn-0.14 && mkdir build && cd build
+RUN ln -s /usr/local external
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
           -D CMAKE_INSTALL_PREFIX=/usr/local \
-          .. && \
-    make -j"$(nproc)" install && \
+          ..
+RUN make -j"$(nproc)" install
 
-    $PIP_INSTALL \
-        cntk \
-        && \
+RUN $PIP_INSTALL cntk
 
 # ==================================================================
 # config & cleanup
-# ------------------------------------------------------------------
+# ==================================================================
 
-    ldconfig && \
-    apt-get clean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+RUN ldconfig
+RUN apt-get clean
+RUN apt-get autoremove
+RUN rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+

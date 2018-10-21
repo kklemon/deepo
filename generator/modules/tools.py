@@ -9,13 +9,12 @@ class Tools(Module):
         return ''
 
     def build(self):
-        return r'''
+        return [r'''
             DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
                 build-essential \
                 ca-certificates \
                 cmake \
                 wget \
                 git \
-                vim \
-                && \
-            '''
+                vim'''
+                ]

@@ -14,47 +14,45 @@ class Python(Module):
             raise NotImplementedError('unsupported python version')
 
     def build(self):
-        return (r'''
-            DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-                python3-pip \
-                python3-dev \
-                && \
-            ln -s /usr/bin/python3 /usr/local/bin/python && \
-            pip3 --no-cache-dir install --upgrade pip && \
-            $PIP_INSTALL \
-                setuptools \
-                && \
-            ''' if self.version == '3.5' else (
-            r'''
-            DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-                software-properties-common \
-                && \
-            add-apt-repository ppa:deadsnakes/ppa && \
-            apt-get update && \
-            DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-                python3.6 \
-                python3.6-dev \
-                && \
-            wget -O ~/get-pip.py \
-                https://bootstrap.pypa.io/get-pip.py && \
-            python3.6 ~/get-pip.py && \
-            ln -s /usr/bin/python3.6 /usr/local/bin/python3 && \
-            ln -s /usr/bin/python3.6 /usr/local/bin/python && \
-            $PIP_INSTALL \
-                setuptools \
-                && \
-            ''' if self.version == '3.6' else
-            r'''
-            DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-                python-pip \
-                python-dev \
-                && \
-            $PIP_INSTALL \
-                setuptools \
-                pip \
-                && \
-            '''
-        )).rstrip() + r'''
+        if self.version == '3.5':
+            stmts = [
+                r'''
+                DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+                    python3-pip \
+                    python3-dev''',
+                r'ln -s /usr/bin/python3 /usr/local/bin/python',
+                r'pip3 --no-cache-dir install --upgrade pip',
+                r'$PIP_INSTALL setuptools'
+            ]
+        elif self.version == '3.6':
+            stmts = [
+                r'''
+                DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+                    software-properties-common''',
+                r'add-apt-repository ppa:deadsnakes/ppa',
+                r'apt-get update',
+                r'''
+                DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+                    python3.6 \
+                    python3.6-dev''',
+                r'''
+                wget -O ~/get-pip.py \
+                    https://bootstrap.pypa.io/get-pip.py''',
+                r'python3.6 ~/get-pip.py',
+                r'ln -s /usr/bin/python3.6 /usr/local/bin/python3',
+                r'ln -s /usr/bin/python3.6 /usr/local/bin/python',
+                r'$PIP_INSTALL setuptools']
+        else:
+            stmts = [
+                r'''
+                DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+                    python-pip \
+                    python-dev''',
+                r'''
+                $PIP_INSTALL \
+                    setuptools
+                    pip''']
+        stmts.append(r'''
             $PIP_INSTALL \
                 numpy \
                 scipy \
@@ -62,6 +60,5 @@ class Python(Module):
                 cloudpickle \
                 scikit-learn \
                 matplotlib \
-                Cython \
-                && \
-        '''
+                Cython''')
+        return stmts
