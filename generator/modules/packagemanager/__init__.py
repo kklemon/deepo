@@ -10,8 +10,13 @@ class PackageManager(Module):
         self.packages = []
 
     @classmethod
-    def register_package_manager(cls, pm):
-        cls.pms[pm.shortcut] = pm
+    def register_package_manager(cls, package_manager):
+        if isinstance(package_manager, list):
+            cls.pms.update(
+                {pm.shortcut: pm for pm in package_manager}
+            )
+        else:
+            cls.pms[package_manager.shortcut] = package_manager
 
     @classmethod
     def register_package(cls, pm_shortcut, package, version=None):
@@ -32,5 +37,9 @@ class PackageManager(Module):
 
 
 from .pip import PIPPackageManager
+from .apt import AptitudePackageManager
 
-PackageManager.register_package_manager(PIPPackageManager())
+PackageManager.register_package_manager([
+    PIPPackageManager(),
+    AptitudePackageManager()
+])
