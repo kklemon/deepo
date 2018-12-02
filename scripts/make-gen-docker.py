@@ -4,7 +4,6 @@
 
 candidate_modules = [
     'tensorflow',
-    'sonnet',
     'mxnet',
     'cntk',
     'keras',
@@ -16,6 +15,7 @@ candidate_modules = [
     'caffe2',
     'torch',
     'darknet',
+    'pip+sonnet',
 ]
 
 non_python_modules = [
