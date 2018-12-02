@@ -11,8 +11,8 @@ class Keras(Module):
     def build(self, composer):
         return [
             r'''
-            $PIP_INSTALL
-                h5py
+            $PIP_INSTALL \
+                h5py \
                 keras
             '''
         ]

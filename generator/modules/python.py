@@ -50,7 +50,7 @@ class Python(Module):
                     python-dev''',
                 r'''
                 $PIP_INSTALL \
-                    setuptools
+                    setuptools \
                     pip''']
         stmts.append(r'''
             $PIP_INSTALL \
