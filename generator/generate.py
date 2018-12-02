@@ -36,7 +36,7 @@ def main():
             PackageManager.register_package(pm_shortcut, module, version)
         else:
             module = _import(terms[0])
-            instance = module(version)
+            instance = module(_version=version)
             in_modules.append(instance)
 
     in_modules += PackageManager.get_package_managers()

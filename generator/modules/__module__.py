@@ -31,9 +31,9 @@ def version(module, _ver):
 @source('unknown')
 @version('latest')
 class Module(object):
-    def __init__(self, version=None):
-        if version is not None:
-            self.version = version
+    def __init__(self, _version=None):
+        if _version is not None:
+            self.version = _version
 
     def __repr__(self):
         return '%-13s %-6s (%s)' % (
