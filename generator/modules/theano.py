@@ -35,7 +35,7 @@ class Theano(Module):
         return stmts + [
             '',
             r'''
-            $PIP_INSTALL
+            $PIP_INSTALL \
                 https://github.com/Theano/Theano/archive/master.zip
             '''
         ]
